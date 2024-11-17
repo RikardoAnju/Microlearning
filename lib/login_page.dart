@@ -258,33 +258,38 @@ class LoginFormState extends State<LoginForm> {
     );
   }
 
-  // Fungsi untuk menandai login pengguna
-  Future<void> signIn(String email, String password) async {
-    if (_formKey.currentState!.validate()) {
-      try {
-        UserCredential userCredential = await auth.signInWithEmailAndPassword(
-          email: email,
-          password: password,
-        );
+ // Fungsi untuk menandai login pengguna
+Future<void> signIn(String email, String password) async {
+  if (_formKey.currentState!.validate()) {
+    try {
+      UserCredential userCredential = await auth.signInWithEmailAndPassword(
+        email: email,
+        password: password,
+      );
 
-        // Menggunakan userCredential untuk mengambil informasi pengguna
-        User? user = userCredential.user;
-        logger.i('User signed in: ${user?.email}'); // Menyimpan informasi pengguna ke log
+      // Menggunakan userCredential untuk mengambil informasi pengguna
+      User? user = userCredential.user;
+      logger.i('User signed in: ${user?.email}'); // Menyimpan informasi pengguna ke log
 
-        // Setelah berhasil login, arahkan pengguna berdasarkan peran
-        await route(context);
-      } on FirebaseAuthException catch (e) {
-        setState(() {
-          _isLoading = false; // Set loading menjadi false saat error
-        });
-        if (e.code == 'user-not-found' || e.code == 'wrong-password') {
-          showErrorModal(context, "Email dan password Anda salah.");
-        } else {
-          showErrorModal(context, "Email atau password Anda salah.");
-        }
+      // Setelah berhasil login, arahkan pengguna berdasarkan peran
+      await route(context);
+    } on FirebaseAuthException catch (e) {
+      setState(() {
+        _isLoading = false; // Set loading menjadi false saat error
+      });
+
+      // Menampilkan modal error sesuai jenis kesalahan
+      if (e.code == 'user-not-found') {
+        showErrorModal(context, "Akun Anda belum terdaftar.");
+      } else if (e.code == 'wrong-password') {
+        showErrorModal(context, "Email dan password Anda salah.");
+      } else {
+        showErrorModal(context, "Terjadi kesalahan, silakan coba lagi.");
       }
     }
   }
+}
+
 
   // Fungsi route untuk mengarahkan sesuai peran pengguna
   Future<void> route(BuildContext context) async {

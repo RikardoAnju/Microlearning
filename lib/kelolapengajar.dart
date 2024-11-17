@@ -60,7 +60,8 @@ class KelolaPengajarState extends State<KelolaPengajar> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body: SingleChildScrollView( // Tambahkan SingleChildScrollView
+     
+      body: SingleChildScrollView(
         child: Column(
           children: <Widget>[
             // Header Setengah Lingkaran
@@ -152,7 +153,7 @@ class KelolaPengajarState extends State<KelolaPengajar> {
                   child: Padding(
                     padding: const EdgeInsets.all(16.0),
                     child: DataTable(
-                      headingRowColor: WidgetStateProperty.all(Colors.blue), // Perbaiki ini
+                      headingRowColor: WidgetStateProperty.all(Colors.blue),
                       columns: [
                         DataColumn(
                           label: Text(

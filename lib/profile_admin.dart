@@ -44,7 +44,7 @@ class UserModel {
       email: data['email'] ?? '',
       name: data['name'] ?? 'Tidak ada nama',
       gender: data['gender'] ?? 'Tidak ada gender',
-      nip: data['nip'] ?? 'Tidak ada NISN',
+      nip: data['nip'] ?? 'Tidak ada NIP',
       password: data['password'] ?? '',
     );
   }

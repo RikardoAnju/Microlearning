@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:microlearning/daftar_siswa.dart';
+import 'package:microlearning/kelolah_konten.dart';
 import 'package:microlearning/materi_page.dart';
-import 'package:microlearning/quiz_page.dart';
-import 'kelola_pengguna.dart'; 
 import 'profile_guru.dart';
 
 class TeacherPage extends StatefulWidget {
@@ -23,9 +23,9 @@ class _TeacherPageState extends State<TeacherPage> {
 
   static const List<Widget> _pages = <Widget>[
     HomeContent(), // Beranda Home
-    KelolaPengguna(),  // Halaman Kelola Pengguna
-    MateriPage(), // Halaman Kelola Materi
-    QuizPage(), // Halaman Kuiz
+    KelolahKonten(),
+    MateriPage(),
+    DaftarSiswa(), // Halaman Kuiz
   ];
 
   @override
