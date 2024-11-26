@@ -16,11 +16,11 @@ class TambahPengajarState extends State<TambahPengajar> {
   String? selectedKelas;
 
   final List<String> daftarPelajaran = [
-    'Pelajaran 1',
-    'Pelajaran 2',
-    'Pelajaran 3',
-    'Pelajaran 4',
-    'Pelajaran 5',
+    'MATEMATIKA',
+    'BIOLOGI',
+    'PKN',
+    'FISIKA',
+    
   ];
 
   final List<String> daftarkelas = [

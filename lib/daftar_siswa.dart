@@ -15,11 +15,13 @@ class DaftarSiswaState extends State<DaftarSiswa> {
   final TextEditingController _searchController = TextEditingController();
   String _searchText = "";
   Timer? _debounce;
+  List<QueryDocumentSnapshot> _userList = [];
 
   @override
   void initState() {
     super.initState();
     _searchController.addListener(_onSearchChanged);
+    _loadUsers(); // Memuat data awal
   }
 
   @override
@@ -32,25 +34,30 @@ class DaftarSiswaState extends State<DaftarSiswa> {
   // Fungsi untuk mengelola perubahan teks pada search box
   void _onSearchChanged() {
     if (_debounce?.isActive ?? false) _debounce!.cancel();
-    _debounce = Timer(const Duration(milliseconds: 500 ), () {
+    _debounce = Timer(const Duration(milliseconds: 500), () {
       setState(() {
         _searchText = _searchController.text.toLowerCase();
       });
     });
   }
 
-  // Fungsi untuk mendapatkan stream dengan filter dinamis berdasarkan _searchText
-  Stream<QuerySnapshot> _getUserStream() {
+  // Memuat data awal dari Firestore tanpa filter
+  Future<void> _loadUsers() async {
+    final snapshot = await userCollection.where('role', isEqualTo: 'Student').get();
+    setState(() {
+      _userList = snapshot.docs;
+    });
+  }
+
+  // Fungsi untuk mendapatkan data siswa berdasarkan pencarian
+  List<QueryDocumentSnapshot> _getFilteredUsers() {
     if (_searchText.isEmpty) {
-      return userCollection.where('role', isEqualTo: 'Student').snapshots();
+      return _userList;
     } else {
-     
-      return userCollection
-          .where('role', isEqualTo: 'Student')
-          .orderBy('name')
-          .startAt([_searchText])
-          .endAt([_searchText + '\uf8ff'])
-          .snapshots();
+      return _userList.where((doc) {
+        var data = doc.data() as Map<String, dynamic>;
+        return data['name']?.toLowerCase().contains(_searchText) ?? false;
+      }).toList();
     }
   }
 
@@ -97,14 +104,11 @@ class DaftarSiswaState extends State<DaftarSiswa> {
             ),
             const SizedBox(height: 20),
             // StreamBuilder untuk pengambilan data siswa dengan pencarian dinamis
-            StreamBuilder<QuerySnapshot>(
-              stream: _getUserStream(),
-              builder: (context, snapshot) {
-                if (snapshot.connectionState == ConnectionState.waiting) {
-                  return const Center(child: CircularProgressIndicator());
-                }
+            Builder(
+              builder: (context) {
+                final filteredUsers = _getFilteredUsers();
 
-                if (!snapshot.hasData || snapshot.data!.docs.isEmpty) {
+                if (filteredUsers.isEmpty) {
                   return Center(
                     child: Padding(
                       padding: const EdgeInsets.all(16.0),
@@ -119,9 +123,9 @@ class DaftarSiswaState extends State<DaftarSiswa> {
                 return ListView.builder(
                   shrinkWrap: true,
                   physics: const NeverScrollableScrollPhysics(),
-                  itemCount: snapshot.data!.docs.length,
+                  itemCount: filteredUsers.length,
                   itemBuilder: (context, index) {
-                    var data = snapshot.data!.docs[index].data() as Map<String, dynamic>;
+                    var data = filteredUsers[index].data() as Map<String, dynamic>;
 
                     return Padding(
                       padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 8.0),

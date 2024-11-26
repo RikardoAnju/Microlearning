@@ -37,38 +37,8 @@ class _MateriPageState extends State<MateriPage> {
     });
   }
 
-  void _onKelasTapped(String kelas) {
-    // Cek jika kelas yang diakses sama dengan kelas pengguna
-    if (kelas == userKelas) {
-      setState(() {
-        _selectedIndex = 2; // Tampilkan konten list konten
-      });
-    } else {
-      // Tampilkan pesan jika siswa tidak memiliki akses
-      _showAccessDeniedDialog(kelas);
-    }
-  }
-
-  void _showAccessDeniedDialog(String kelas) {
-    showDialog(
-      context: context,
-      builder: (BuildContext context) {
-        return AlertDialog(
-          title: const Text("Akses Ditolak"),
-          content: Text("Anda tidak memiliki akses ke konten $kelas."),
-          actions: <Widget>[
-            TextButton(
-              onPressed: () {
-                Navigator.of(context).pop();
-              },
-              child: const Text("OK"),
-            ),
-          ],
-        );
-      },
-    );
-  }
-
+ 
+ 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -122,14 +92,14 @@ class _MateriPageState extends State<MateriPage> {
             onTap: () {
               _onItemTapped(1);
             },
-            child: _buildMateriBox("Matematika"),
+            child: _buildMateriBox("MATEMATIKA"),
           ),
           const SizedBox(height: 20),
           GestureDetector(
             onTap: () {
               _onItemTapped(1);
             },
-            child: _buildMateriBox("Biologi"),
+            child: _buildMateriBox("BIOLOGI"),
           ),
           const SizedBox(height: 20),
           GestureDetector(
@@ -143,7 +113,7 @@ class _MateriPageState extends State<MateriPage> {
             onTap: () {
               _onItemTapped(1);
             },
-            child: _buildMateriBox("Fisika"),
+            child: _buildMateriBox("FISIKA"),
           ),
         ],
       ),
@@ -158,17 +128,17 @@ class _MateriPageState extends State<MateriPage> {
         children: [
           const SizedBox(height: 20),
           GestureDetector(
-            onTap: () => _onKelasTapped("Kelas 10"),
+           
             child: _buildKelasBox("Kelas 10"),
           ),
           const SizedBox(height: 20),
           GestureDetector(
-            onTap: () => _onKelasTapped("Kelas 11"),
+            
             child: _buildKelasBox("Kelas 11"),
           ),
           const SizedBox(height: 20),
           GestureDetector(
-            onTap: () => _onKelasTapped("Kelas 12"),
+           
             child: _buildKelasBox("Kelas 12"),
           ),
         ],
