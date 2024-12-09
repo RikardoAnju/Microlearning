@@ -1,0 +1,40 @@
+plugins {
+    id "com.android.application"
+    id "kotlin-android"
+    id "dev.flutter.flutter-gradle-plugin"
+    id 'com.google.gms.google-services' // Pastikan plugin Google Services sudah ditambahkan
+}
+
+android {
+    namespace = "com.example.microlearning"
+    compileSdk = 33  // Anda bisa menyesuaikan dengan versi terbaru Flutter compileSdkVersion
+
+    ndkVersion = flutter.ndkVersion
+
+    compileOptions {
+        sourceCompatibility = JavaVersion.VERSION_1_8
+        targetCompatibility = JavaVersion.VERSION_1_8
+    }
+
+    kotlinOptions {
+        jvmTarget = JavaVersion.VERSION_1_8
+    }
+
+    defaultConfig {
+        applicationId = "com.example.microlearning"
+        minSdkVersion 23  // Menetapkan minSdkVersion menjadi 23 agar kompatibel dengan Firebase
+        targetSdkVersion 33 // Anda bisa menyesuaikan targetSdk sesuai dengan versi terbaru Android SDK
+        versionCode = flutter.versionCode
+        versionName = flutter.versionName
+    }
+
+    buildTypes {
+        release {
+            signingConfig = signingConfigs.debug
+        }
+    }
+}
+
+flutter {
+    source = "../.." // Mengarah ke root Flutter SDK
+}
