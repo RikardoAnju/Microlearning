@@ -20,28 +20,28 @@ class KontenSubab extends StatefulWidget {
 }
 
 class KontenSubabState extends State<KontenSubab> {
-  final CollectionReference userCollection =
-      FirebaseFirestore.instance.collection('konten');
-  final TextEditingController _searchController = TextEditingController();
-  String _searchQuery = '';
+  final CollectionReference userCollection = FirebaseFirestore.instance.collection('konten');
+  String searchQuery = ''; 
+  TextEditingController _searchController = TextEditingController(); 
 
-  // Fungsi untuk mendapatkan subab yang sudah difilter berdasarkan kelas dan query pencarian
-Stream<QuerySnapshot> _getFilteredSubab() {
-  if (_searchQuery.isEmpty) {
+  
+  Stream<QuerySnapshot> _getSubab() {
     return userCollection
-        .where('kelas', isEqualTo: widget.kelas) // Contoh: "kelas 10"
-        .where('mataPelajaran', isEqualTo: widget.mataPelajaran.toUpperCase()) // Contoh: "FISIKA"
-        .snapshots();
-  } else {
-    return userCollection
-        .where('kelas', isEqualTo: widget.kelas) // Contoh: "kelas 10"
-        .where('mataPelajaran', isEqualTo: widget.mataPelajaran.toUpperCase()) // Contoh: "FISIKA"
-        .where('judulSubBab', isGreaterThanOrEqualTo: _searchQuery) // Filter pencarian
-        .where('judulSubBab', isLessThanOrEqualTo: '$_searchQuery\uf8ff') // Filter pencarian
+        .where('kelas', isEqualTo: widget.kelas)
+        .where('mataPelajaran', isEqualTo: widget.mataPelajaran.toUpperCase())
         .snapshots();
   }
-}
 
+  // Fungsi untuk memfilter data berdasarkan query pencarian
+  List<QueryDocumentSnapshot> _filterSubab(List<QueryDocumentSnapshot> subabList) {
+    if (searchQuery.isEmpty) {
+      return subabList;
+    }
+    return subabList.where((subab) {
+      String judulSubBab = subab['judulSubBab'] ?? '';
+      return judulSubBab.toLowerCase().contains(searchQuery.toLowerCase());
+    }).toList();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -59,7 +59,7 @@ Stream<QuerySnapshot> _getFilteredSubab() {
       body: SingleChildScrollView(
         child: Column(
           children: <Widget>[
-            // Header untuk kelas
+          
             Container(
               height: 150,
               decoration: const BoxDecoration(
@@ -80,29 +80,32 @@ Stream<QuerySnapshot> _getFilteredSubab() {
               ),
             ),
             const SizedBox(height: 20),
-            // Search bar
+            
+           
             Padding(
               padding: const EdgeInsets.symmetric(horizontal: 16.0),
               child: TextField(
                 controller: _searchController,
                 onChanged: (query) {
                   setState(() {
-                    _searchQuery = query;
+                    searchQuery = query; 
                   });
                 },
                 decoration: InputDecoration(
                   hintText: 'Cari subab...',
+                  hintStyle: GoogleFonts.poppins(color: Colors.black54),
                   prefixIcon: const Icon(Icons.search),
                   border: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(8.0),
+                    borderRadius: BorderRadius.circular(8.0), 
                   ),
                 ),
               ),
             ),
             const SizedBox(height: 20),
+
             // StreamBuilder untuk menampilkan data subab
             StreamBuilder<QuerySnapshot>(
-              stream: _getFilteredSubab(),
+              stream: _getSubab(),
               builder: (context, snapshot) {
                 if (snapshot.connectionState == ConnectionState.waiting) {
                   return const Center(child: CircularProgressIndicator());
@@ -114,19 +117,19 @@ Stream<QuerySnapshot> _getFilteredSubab() {
 
                 var subabList = snapshot.data!.docs;
 
+                // Memfilter subab berdasarkan query pencarian
+                var filteredSubabList = _filterSubab(subabList);
+
                 return ListView.builder(
                   shrinkWrap: true,
                   physics: const NeverScrollableScrollPhysics(),
-                  itemCount: subabList.length,
+                  itemCount: filteredSubabList.length,
                   itemBuilder: (context, index) {
-                    var subab = subabList[index];
-
-                    
+                    var subab = filteredSubabList[index];
                     String judulSubBab = subab['judulSubBab'] ?? 'No Title';
 
                     return GestureDetector(
                       onTap: () {
-                       
                         Navigator.push(
                           context,
                           MaterialPageRoute(
