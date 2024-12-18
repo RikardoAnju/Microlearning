@@ -14,13 +14,13 @@ class KelolahKonten extends StatefulWidget {
 class KelolahKontenState extends State<KelolahKonten> {
   final FirebaseFirestore _firestore = FirebaseFirestore.instance;
 
-  // Fetch data dari Firestore
+
   Future<List<Map<String, dynamic>>> fetchLessons() async {
     try {
       QuerySnapshot snapshot = await _firestore.collection('pengajar').get();
       return snapshot.docs.map((doc) {
         final data = doc.data() as Map<String, dynamic>;
-        data['id'] = doc.id; // Tambahkan ID dokumen ke data
+        data['id'] = doc.id; 
         return data;
       }).toList();
     } catch (e) {
@@ -84,7 +84,7 @@ class KelolahKontenState extends State<KelolahKonten> {
                           lesson['mataPelajaran'] ?? 'Tidak Ada Mata Pelajaran',
                           lesson['kelas'] ?? 'Tidak Ada Kelas',
                           lesson['namaGuru'] ?? 'Tidak Ada Guru',
-                          lesson['id'], // Kirimkan ID dokumen
+                          lesson['id'], 
                         ),
                       );
                     }).toList(),

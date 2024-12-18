@@ -22,7 +22,7 @@ class KontenSubab extends StatefulWidget {
 class KontenSubabState extends State<KontenSubab> {
   final CollectionReference userCollection = FirebaseFirestore.instance.collection('konten');
   String searchQuery = ''; 
-  TextEditingController _searchController = TextEditingController(); 
+  final TextEditingController _searchController = TextEditingController(); 
 
   
   Stream<QuerySnapshot> _getSubab() {

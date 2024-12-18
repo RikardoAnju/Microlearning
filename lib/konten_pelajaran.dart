@@ -54,8 +54,8 @@ class _KontenPelajaranState extends State<KontenPelajaran> {
       DocumentSnapshot userDoc = await userCollection.doc(currentUserId).get();
       if (userDoc.exists) {
         setState(() {
-          name = userDoc['name'] as String?; // Nama pengguna
-          imageUrl = userDoc['profile_image'] as String?; // URL foto profil
+          name = userDoc['name'] as String?;
+          imageUrl = userDoc['profile_image'] as String?;
         });
       }
     } catch (e) {
@@ -66,14 +66,14 @@ class _KontenPelajaranState extends State<KontenPelajaran> {
   void _tambahKomentar() {
     if (_komentarController.text.isNotEmpty) {
       String userName = name ?? 'Anonim';
-      String userImage = imageUrl ??
-          'https://www.example.com/default-avatar.png'; // Foto profil default
+      String userImage =
+          imageUrl ?? 'https://www.example.com/default-avatar.png';
       FirebaseFirestore.instance.collection('komentar').add({
         'subabId': widget.subabId,
         'komentar': _komentarController.text,
         'name': userName,
         'profile_image': userImage,
-        'uid': FirebaseAuth.instance.currentUser?.uid, // Menyimpan UID pengguna
+        'uid': FirebaseAuth.instance.currentUser?.uid,
         'timestamp': FieldValue.serverTimestamp(),
       });
       _komentarController.clear();
@@ -140,7 +140,6 @@ class _KontenPelajaranState extends State<KontenPelajaran> {
                             ),
                           ),
                           const Spacer(),
-                          // Menampilkan judulSubBab di tengah
                           Padding(
                             padding: const EdgeInsets.only(right: 70.0),
                             child: Center(
@@ -294,7 +293,6 @@ class _KontenPelajaranState extends State<KontenPelajaran> {
                     ),
                     const SizedBox(height: 16),
                     // Forum Diskusi
-                    
 
                     Padding(
                       padding: const EdgeInsets.symmetric(horizontal: 16.0),
@@ -342,81 +340,132 @@ class _KontenPelajaranState extends State<KontenPelajaran> {
                                       child: Text('Belum ada komentar.'));
                                 }
 
-                                String? userPhotoUrl =
-                                    FirebaseAuth.instance.currentUser?.photoURL;
+                                return SizedBox(
+                                  height:
+                                      300, // Sesuaikan tinggi sesuai kebutuhan
+                                  child: ListView.builder(
+                                    shrinkWrap: true,
+                                    itemCount: snapshot.data!.docs.length,
+                                    itemBuilder: (context, index) {
+                                      var komentar = snapshot.data!.docs[index];
+                                      String commenterUid = komentar['uid'];
 
-                               return SizedBox(
-                                height: 300, // Sesuaikan tinggi sesuai kebutuhan
-                                child: ListView.builder(
-                                  shrinkWrap: true,
-                                  itemCount: snapshot.data!.docs.length,
-                                  itemBuilder: (context, index) {
-                                     var komentar = snapshot.data!.docs[index];
-                                      return Padding(
-                                        padding: const EdgeInsets.symmetric(vertical: 8.0),
-                                         child: Container(
-                                          decoration: BoxDecoration(
-                                            color: Colors.grey[200],
-                                             borderRadius: BorderRadius.circular(8.0),
-                                             ),
-                                             child: ListTile(
-                                              leading: CircleAvatar(
-                                                backgroundImage: imageUrl != null 
-                                                ? NetworkImage(imageUrl!)
-                                                : const NetworkImage('https://www.example.com/default-avatar.png'),
+                                      return FutureBuilder<DocumentSnapshot>(
+                                        future: FirebaseFirestore.instance
+                                            .collection('users')
+                                            .doc(commenterUid)
+                                            .get(),
+                                        builder: (context, userSnapshot) {
+                                          if (userSnapshot.connectionState ==
+                                              ConnectionState.waiting) {
+                                            return const Center(
+                                                child:
+                                                    CircularProgressIndicator());
+                                          }
+                                          if (userSnapshot.hasError) {
+                                            return const Center(
+                                                child: Text(
+                                                    'Gagal mengambil data pengguna.'));
+                                          }
+
+                                          // Ambil data nama dan foto profil pengguna
+                                          String userName =
+                                              userSnapshot.data?.get('name') ??
+                                                  'Anonim';
+                                          String userImage = userSnapshot.data
+                                                  ?.get('profile_image') ??
+                                              'https://www.example.com/default-avatar.png';
+
+                                          return Padding(
+                                            padding: const EdgeInsets.symmetric(
+                                                vertical: 8.0),
+                                            child: Container(
+                                              decoration: BoxDecoration(
+                                                color: Colors.grey[200],
+                                                borderRadius:
+                                                    BorderRadius.circular(8.0),
+                                              ),
+                                              child: ListTile(
+                                                leading: CircleAvatar(
+                                                  backgroundImage:
+                                                      NetworkImage(userImage),
                                                 ),
                                                 title: Text(
-                                                  komentar['name'] ?? name,
+                                                  userName,
                                                   style: GoogleFonts.poppins(
                                                     fontSize: 14,
                                                     fontWeight: FontWeight.w600,
-                                                    ),
-                                                    ),
-                                                    subtitle: Text(
-              komentar['isi_komentar'] ?? '',
-              style: GoogleFonts.poppins(fontSize: 12),
-            ),
-            trailing: FirebaseAuth.instance.currentUser?.uid == komentar['uid']
-                ? IconButton(
-                    icon: const Icon(Icons.delete, color: Colors.red),
-                    onPressed: () async {
-                      bool? confirmDelete = await showDialog<bool>(
-                        context: context,
-                        builder: (BuildContext context) {
-                          return AlertDialog(
-                            title: const Text('Konfirmasi Hapus'),
-                            content: const Text('Apakah Anda yakin ingin menghapus komentar ini?'),
-                            actions: [
-                              TextButton(
-                                onPressed: () => Navigator.pop(context, false),
-                                child: const Text('Batal', style: TextStyle(color: Colors.black)),
-                              ),
-                              TextButton(
-                                onPressed: () => Navigator.pop(context, true),
-                                child: const Text('Hapus', style: TextStyle(color: Colors.black)),
-                              ),
-                            ],
-                          );
-                        },
-                      );
+                                                  ),
+                                                ),
+                                                subtitle: Text(
+                                                  komentar['komentar'] ??
+                                                      '',
+                                                  style: GoogleFonts.poppins(
+                                                      fontSize: 12),
+                                                ),
+                                                trailing: FirebaseAuth.instance
+                                                            .currentUser?.uid ==
+                                                        commenterUid
+                                                    ? IconButton(
+                                                        icon: const Icon(
+                                                            Icons.delete,
+                                                            color: Colors.red),
+                                                        onPressed: () async {
+                                                          bool? confirmDelete =
+                                                              await showDialog<
+                                                                  bool>(
+                                                            context: context,
+                                                            builder:
+                                                                (BuildContext
+                                                                    context) {
+                                                              return AlertDialog(
+                                                                title: const Text(
+                                                                    'Konfirmasi Hapus'),
+                                                                content: const Text(
+                                                                    'Apakah Anda yakin ingin menghapus komentar ini?'),
+                                                                actions: [
+                                                                  TextButton(
+                                                                    onPressed: () =>
+                                                                        Navigator.pop(
+                                                                            context,
+                                                                            false),
+                                                                    child: const Text(
+                                                                        'Batal'),
+                                                                  ),
+                                                                  TextButton(
+                                                                    onPressed: () =>
+                                                                        Navigator.pop(
+                                                                            context,
+                                                                            true),
+                                                                    child: const Text(
+                                                                        'Hapus'),
+                                                                  ),
+                                                                ],
+                                                              );
+                                                            },
+                                                          );
 
-                      if (confirmDelete == true) {
-                        await FirebaseFirestore.instance
-                            .collection('komentar')
-                            .doc(komentar.id)
-                            .delete();
-                      }
-                    },
-                  )
-                : null,
-          ),
-        ),
-      );
-    },
-  ),
-);
-
-            
+                                                          if (confirmDelete ==
+                                                              true) {
+                                                            await FirebaseFirestore
+                                                                .instance
+                                                                .collection(
+                                                                    'komentar')
+                                                                .doc(
+                                                                    komentar.id)
+                                                                .delete();
+                                                          }
+                                                        },
+                                                      )
+                                                    : null,
+                                              ),
+                                            ),
+                                          );
+                                        },
+                                      );
+                                    },
+                                  ),
+                                );
                               },
                             ),
                             const SizedBox(height: 20),
@@ -463,13 +512,13 @@ class _KontenPelajaranState extends State<KontenPelajaran> {
                                               .collection('komentar')
                                               .add({
                                             'subabId': widget.subabId,
-                                            'name': name,
-                                            'isi_komentar':
+                                            'komentar':
                                                 _komentarController.text.trim(),
+                                            'name': name,
+                                            'profile_image': imageUrl ??
+                                                'https://www.example.com/default-avatar.png',
                                             'uid': FirebaseAuth
-                                                .instance
-                                                .currentUser
-                                                ?.uid, // Tambahkan UID pengguna yang mengirim komentar
+                                                .instance.currentUser?.uid,
                                             'timestamp':
                                                 FieldValue.serverTimestamp(),
                                           });
@@ -486,6 +535,7 @@ class _KontenPelajaranState extends State<KontenPelajaran> {
                         ),
                       ),
                     ),
+
                     const SizedBox(height: 40),
                   ],
                 ),
